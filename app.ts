@@ -20,8 +20,10 @@ app.use(
 
 //routes
 import userRouter from "./routes/userRoutes";
+import courseRouter from "./routes/courseRoutes";
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/course", courseRouter);
 
 //unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
