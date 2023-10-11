@@ -294,3 +294,124 @@ export const addAnswer = CatchAsyncError(
     }
   }
 );
+
+//add review to course
+interface IAddReview {
+  review: String;
+  userId: String;
+  rating: String;
+}
+
+export const addReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userCourseList = req.user?.courses;
+      const courseId = req.params.id;
+
+      //check if course id exist in courselist
+      const courseExist = userCourseList?.some(
+        (course: any) => course._id.toString() === courseId.toString()
+      );
+      if (!courseExist) {
+        return next(
+          new ErrorHandler("you are not eligible to access this course", 400)
+        );
+      }
+
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("invalid course content", 400));
+      }
+      const { review, rating } = req.body as IAddReview;
+
+      const reviewData = {
+        user: req.user,
+        comment: review,
+        rating,
+      };
+      course?.reviews.push(reviewData);
+
+      //course rating
+      let avg = 0;
+      course?.reviews.forEach((rev: any) => {
+        avg += rev.rating;
+      });
+
+      if (course) {
+        course.ratings = avg / course.reviews.length;
+      }
+
+      //save course
+      course?.save();
+
+      //create notifications
+      const notification = {
+        title: "New Review Received",
+        message: `${req.user?.name} has given a review on your course ${course?.name}`,
+      };
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//add reply in review
+
+//add review to course
+interface IAddReviewReply {
+  reviewId: String;
+  courseId: String;
+  comment: String;
+}
+
+export const addReplyToReview = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { reviewId, courseId, comment } = req.body as IAddReviewReply;
+
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("invalid course content", 400));
+      }
+      //check if course id exist in courselist
+      const review = course?.reviews.find(
+        (rev: any) => rev._id.toString() === reviewId
+      );
+      if (!review) {
+        return next(
+          new ErrorHandler("you are not eligible to review this course", 400)
+        );
+      }
+
+      const replyData = {
+        user: req.user,
+        comment,
+      };
+      if (!review.commentReplies) {
+        review.commentReplies = [];
+      }
+      review.commentReplies?.push(replyData);
+
+      //save course
+      course?.save();
+
+      //create notifications
+      //   const notification = {
+      //     title: "New Review Received",
+      //     message: `${req.user?.name} has given a review on your course ${course?.name}`,
+      //   };
+
+      res.status(200).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
