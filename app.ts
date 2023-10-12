@@ -21,9 +21,13 @@ app.use(
 //routes
 import userRouter from "./routes/userRoutes";
 import courseRouter from "./routes/courseRoutes";
+import orderRouter from "./routes/orderRoutes";
+import notificationRouter from "./routes/notificationRoutes";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/course", courseRouter);
+app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/notification", notificationRouter);
 
 //unknown route
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
