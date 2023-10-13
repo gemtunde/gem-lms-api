@@ -13,3 +13,24 @@ export const createCourse = CatchAsyncError(
     });
   }
 );
+
+//get all users by admin
+export const getAllCoursesService = async (res: Response) => {
+  const courses = await Course.find().sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    courses,
+  });
+};
+
+//admin delete course by id
+export const deleteCourseService = async (res: Response, id: any) => {
+  await Course.findByIdAndDelete(id);
+  await redis.del(id);
+
+  res.status(200).json({
+    success: true,
+    message: "course deleted success",
+  });
+};

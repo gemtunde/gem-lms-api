@@ -4,7 +4,11 @@ import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import { NextFunction, Request, Response } from "express";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/courseService";
+import {
+  createCourse,
+  deleteCourseService,
+  getAllCoursesService,
+} from "../services/courseService";
 import Course from "../models/courseModel";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
@@ -425,6 +429,42 @@ export const addReplyToReview = CatchAsyncError(
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//get all courses info by admin
+
+export const getAllCourseByAdmin = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      getAllCoursesService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+//delete  course  by admin
+
+export const deleteCourse = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const courseExist = await Course.findById(id);
+      if (!courseExist) {
+        return next(new ErrorHandler("Course not found", 400));
+      }
+
+      deleteCourseService(res, id);
+      //   await userExist.deleteOne({ id });
+      //   await redis.del(id);
+      //   res.status(200).json({
+      //     success: true,
+      //     message: "message deleted success",
+      //   });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
     }
   }
 );

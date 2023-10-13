@@ -4,7 +4,9 @@ import {
   addQuestion,
   addReplyToReview,
   addReview,
+  deleteCourse,
   editCourse,
+  getAllCourseByAdmin,
   getAllCourses,
   getCourseByUser,
   getSingleCourse,
@@ -37,6 +39,18 @@ router.put(
   isAuthenticated,
   authorizeRoles("admin"),
   addReplyToReview
+);
+router.get(
+  "/get-all-courses",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  getAllCourseByAdmin
+);
+router.delete(
+  "/delete-course/:id",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  deleteCourse
 );
 
 export default router;

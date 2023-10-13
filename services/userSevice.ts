@@ -23,3 +23,36 @@ export const getUserById = async (id: string, res: Response) => {
     });
   }
 };
+//get all users by admin
+export const getAllUsersService = async (res: Response) => {
+  const users = await User.find().sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    users,
+  });
+};
+//update user role by admin
+export const updateUserRoleService = async (
+  res: Response,
+  id: string,
+  role: string
+) => {
+  const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+};
+
+//admin delete user by id
+export const deleteUserService = async (res: Response, id: any) => {
+  await User.findByIdAndDelete(id);
+  await redis.del(id);
+
+  res.status(200).json({
+    success: true,
+    message: "user deleted success",
+  });
+};
